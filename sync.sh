@@ -98,4 +98,80 @@ if [[ ${#updated[@]} -eq 0 && ${#skipped[@]} -eq 0 ]]; then
   echo "  모든 프로젝트가 이미 최신 상태입니다."
 fi
 echo ""
+echo "=== 공유 스크립트 동기화 (SPOF 제거) ==="
+SHARED_SCRIPTS_SRC="/home/seo/apps.txid.uk-astro/public"
+SHARED_FILES=("global-nav-v2.js" "global-nav-v2.css" "gtag-init.js")
+
+# apps.txid.uk/learn.txid.uk/txid.uk 제외 (자체 설정 사용)
+SCRIPT_TARGETS=(
+  "/home/seo/tools.txid.uk-astro"
+  "/home/seo/tx.txid.uk-astro"
+  "/home/seo/viz.txid.uk-astro"
+  "/home/seo/stats.txid.uk-astro"
+  "/home/seo/nodes.txid.uk-astro"
+  "/home/seo/map.txid.uk-astro"
+  "/home/seo/portfolio.txid.uk-astro"
+  "/home/seo/sim.txid.uk-astro"
+  "/home/seo/glossary.txid.uk-astro"
+)
+
+script_updated=()
+
+for project in "${SCRIPT_TARGETS[@]}"; do
+  target="${project}/public"
+  name=$(basename "$project")
+
+  if [[ ! -d "$target" ]]; then
+    echo "  [건너뜀] ${name} — public 디렉토리 없음"
+    continue
+  fi
+
+  has_script_changes=false
+
+  for file in "${SHARED_FILES[@]}"; do
+    src="${SHARED_SCRIPTS_SRC}/${file}"
+    dst="${target}/${file}"
+
+    if [[ ! -e "$src" ]]; then
+      continue
+    fi
+
+    # global-nav-v2.js는 CSS 경로를 로컬로 변환하여 복사
+    if [[ "$file" == "global-nav-v2.js" ]]; then
+      tmpfile=$(mktemp)
+      sed "s|link.href = 'https://apps.txid.uk/global-nav-v2.css';|link.href = '/global-nav-v2.css';|" "$src" > "$tmpfile"
+      if diff -q "$tmpfile" "$dst" &>/dev/null; then
+        rm -f "$tmpfile"
+        continue
+      fi
+      has_script_changes=true
+      echo "  [변경] ${name}/public/${file}"
+      cp "$tmpfile" "$dst"
+      rm -f "$tmpfile"
+    else
+      if diff -q "$src" "$dst" &>/dev/null; then
+        continue
+      fi
+      has_script_changes=true
+      echo "  [변경] ${name}/public/${file}"
+      cp "$src" "$dst"
+    fi
+  done
+
+  if $has_script_changes; then
+    script_updated+=("$name")
+  fi
+done
+
+echo ""
+echo "=== 공유 스크립트 결과 ==="
+if [[ ${#script_updated[@]} -gt 0 ]]; then
+  echo "  업데이트: ${#script_updated[@]}개 프로젝트"
+  for u in "${script_updated[@]}"; do
+    echo "    - ${u}"
+  done
+else
+  echo "  모든 프로젝트의 공유 스크립트가 최신 상태입니다."
+fi
+echo ""
 echo "완료!"

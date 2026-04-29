@@ -1,0 +1,74 @@
+/* ════════════════════════════════════════════════════════════════════
+   @txid/ui — Cross-site design tokens (single source of truth)
+   ════════════════════════════════════════════════════════════════════
+   This file is canonical. All txid.uk sites should sync from here.
+   Currently consumed by: lib.txid.uk, learn.txid.uk.
+
+   Sync recipe (run from each consuming project root):
+     cp /home/seo/txid-ui/styles/tokens.css <project-styles-dir>/tokens.css
+
+   Token philosophy:
+     - Tokens are *additive* — they don't override site-specific
+       neutrals (bg/foreground), only the cross-site identity (orange,
+       fonts, safe-areas, sizing).
+     - Both Tailwind v4 (@theme) and CSS-only consumers can read them.
+     - Light/dark variants follow the same naming with -light suffix
+       on selector ([data-theme=light] or .light) — sites that already
+       use a different theme strategy keep their own toggle code.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Brand: Bitcoin orange (canonical across the platform) ── */
+  --color-bitcoin:        #f7931a;
+  --color-bitcoin-light:  #ffab40;
+  --color-bitcoin-dark:   #c47515;
+  /* Text-on-light variant — use when orange sits on a light background
+     and contrast against the standard --color-bitcoin would be too low. */
+  --color-bitcoin-on-light: #b34700;
+
+  /* ── Font stacks (Korean-first) ── */
+  --font-sans-ko: 'Pretendard Variable', 'Pretendard',
+                  'Apple SD Gothic Neo', 'Noto Sans KR',
+                  system-ui, -apple-system, sans-serif;
+  --font-mono:    'Space Mono', ui-monospace, 'Cascadia Code',
+                  'Menlo', 'Consolas', monospace;
+  --font-display: var(--font-sans-ko);
+
+  /* ── Radius scale ── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-pill: 9999px;
+
+  /* ── Container widths ── */
+  --container-base: 1200px;
+  --container-wide: 1600px;
+
+  /* ── Shadow scale ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.40);
+
+  /* ── Safe-area passthroughs ─────────────────────────────────────────
+   * Standalone PWAs need these to dodge the iOS notch and Android
+   * gesture bar. Sites that don't set them get 0 so layouts stay sane
+   * outside PWA mode. */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+
+  /* ── Motion ── */
+  --ease-out:   cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-fast:   150ms;
+  --duration-base:   200ms;
+  --duration-slow:   300ms;
+}
+
+/* Dark mode overrides for shadow + on-light bitcoin (kept as a no-op for
+   sites that don't toggle .dark — having the rule present is harmless). */
+.dark, [data-theme="dark"] {
+  --color-bitcoin-on-light: #f7a033; /* shifted brighter for dark backgrounds */
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+}

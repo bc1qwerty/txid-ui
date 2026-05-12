@@ -1,0 +1,138 @@
+---
+/**
+ * SharedLayout.astro
+ * Canonical layout for all txid.uk ecosystem sites.
+ * Ensures consistent SEO, fonts, design tokens, and authentication.
+ */
+import '../../styles/tokens.css';
+
+interface Props {
+  title: string;
+  description: string;
+  lang?: string;
+  siteURL: string; // e.g., 'https://tools.txid.uk'
+  gaId?: string;   // Google Analytics ID
+  umamiId?: string; // Umami Website ID
+  keywords?: string;
+  image?: string;
+  canonicalPath?: string;
+}
+
+const { 
+  title, 
+  description, 
+  lang = 'en', 
+  siteURL, 
+  gaId, 
+  umamiId, 
+  keywords,
+  image = '/og.png',
+  canonicalPath 
+} = Astro.props;
+
+const canonicalUrl = canonicalPath ? `${siteURL}${canonicalPath}` : `${siteURL}${Astro.url.pathname}`;
+const ogImage = image.startsWith('http') ? image : `${siteURL}${image}`;
+---
+
+<!DOCTYPE html>
+<html lang={lang} data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Theme Initialization (prevents flash of unstyled content) -->
+  <script is:inline>
+    (function() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  {keywords && <meta name="keywords" content={keywords}>}
+  <link rel="canonical" href={canonicalUrl}>
+  <meta name="theme-color" content="#f7931a">
+
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'">
+
+  <!-- Social Media (OG / Twitter) -->
+  <meta property="og:title" content={title}>
+  <meta property="og:description" content={description}>
+  <meta property="og:url" content={canonicalUrl}>
+  <meta property="og:image" content={ogImage}>
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={title}>
+  <meta name="twitter:description" content={description}>
+  <meta name="twitter:image" content={ogImage}>
+
+  <!-- Platform Search -->
+  <link rel="stylesheet" href="/platform-search.css">
+  <script src="/platform-search.js" defer is:inline></script>
+
+  <!-- Google Analytics -->
+  {gaId && (
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} is:inline></script>
+    <script is:inline define:vars={{ gaId }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', gaId);
+    </script>
+  )}
+  
+  <slot name="head" />
+</head>
+<body>
+  <slot />
+
+  <!-- Shared Scripts & Services -->
+  <script src="https://api.txid.uk/txid-auth.js" crossorigin="anonymous" defer is:inline></script>
+  
+  {umamiId && (
+    <script defer src="https://umami.txid.uk/script.js" data-website-id={umamiId} is:inline></script>
+  )}
+
+  <slot name="footer" />
+</body>
+</html>
+
+<style is:global>
+  /* Base styles that use our tokens */
+  :root {
+    background-color: var(--bg);
+    color: var(--text1);
+  }
+  
+  body {
+    margin: 0;
+    font-family: var(--font-sans-ko);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--color-bitcoin);
+    color: white;
+    padding: 8px;
+    z-index: 100;
+    transition: top 0.2s;
+  }
+  .skip-link:focus {
+    top: 0;
+  }
+</style>

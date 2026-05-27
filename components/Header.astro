@@ -60,6 +60,186 @@ const { sub, defaultLang = 'en', skipWiring = false } = Astro.props;
   </div>
 </header>
 
+<style>
+  /* === Pill Capsule chrome — synced via @txid/ui sync.sh ===
+     Astro auto-scopes these selectors to this component, so consumer
+     sites can keep their own utility classes in global.css without
+     accidental overrides. Login button uses :global() because
+     #txid-auth-mount is populated by an external script after build. */
+  header[data-default-lang] {
+    font-family: var(--font-sans-ko, 'Pretendard Variable', Pretendard, Inter, system-ui, sans-serif);
+  }
+
+  .nav-top {
+    display: flex;
+    align-items: center;
+    gap: var(--header-gap, 0.5rem);
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--footer-border, #21262d);
+  }
+
+  .logo {
+    color: var(--color-bitcoin, #f7931a);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .logo-icon { flex-shrink: 0; }
+  .logo-sep { color: var(--footer-border, #30363d); }
+  .logo-sub { color: var(--footer-fg, #8b949e); font-size: 0.9rem; }
+
+  .nav-right {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--header-gap, 0.5rem);
+    margin-left: auto;
+  }
+
+  .lang-dropdown { position: relative; }
+
+  .lang-btn,
+  .theme-btn {
+    background: var(--header-btn-bg, rgba(139, 148, 158, 0.12));
+    border: none;
+    color: var(--header-btn-fg, #c9d1d9);
+    border-radius: var(--header-btn-radius, 999px);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--header-font-size, 0.78rem);
+    line-height: 1;
+    transition: background 0.15s, color 0.15s;
+  }
+  .lang-btn { padding: var(--header-btn-pad-text, 0.4rem 0.95rem); }
+  .theme-btn {
+    padding: var(--header-btn-pad-icon, 0.4rem 0.55rem);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lang-btn:hover,
+  .theme-btn:hover { background: var(--header-btn-bg-hover, rgba(139, 148, 158, 0.18)); }
+
+  .lang-menu {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    background: var(--card-bg, #161b22);
+    border: 1px solid var(--card-border, #21262d);
+    border-radius: 8px;
+    padding: 0.25rem;
+    display: none;
+    flex-direction: column;
+    min-width: 110px;
+    z-index: 50;
+  }
+  .lang-menu.open { display: flex; }
+  .lang-menu button {
+    background: transparent;
+    border: none;
+    color: var(--header-btn-fg, #c9d1d9);
+    padding: 0.45rem 0.75rem;
+    text-align: left;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: var(--header-font-size, 0.78rem);
+    font-family: inherit;
+  }
+  .lang-menu button:hover { background: var(--header-btn-bg-hover, rgba(139, 148, 158, 0.18)); }
+
+  .hamburger-wrap { position: relative; }
+  .desktop-only { display: inline-flex; }
+  .mobile-only { display: none; }
+
+  @media (max-width: 640px) {
+    .desktop-only { display: none; }
+    .mobile-only { display: inline-flex; }
+  }
+
+  .hamburger-panel {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    background: var(--card-bg, #161b22);
+    border: 1px solid var(--card-border, #21262d);
+    border-radius: 10px;
+    padding: 0.75rem;
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 180px;
+    z-index: 50;
+  }
+  .hamburger-panel.open { display: flex; }
+
+  .settings-section { display: flex; flex-direction: column; gap: 0.4rem; }
+  .settings-section--border {
+    border-top: 1px solid var(--card-border, #21262d);
+    padding-top: 0.6rem;
+  }
+  .settings-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--footer-fg, #8b949e);
+  }
+  .settings-lang-row { display: inline-flex; gap: 0.35rem; }
+  .settings-lang-btn {
+    background: var(--header-btn-bg, rgba(139, 148, 158, 0.12));
+    border: none;
+    color: var(--header-btn-fg, #c9d1d9);
+    border-radius: var(--header-btn-radius, 999px);
+    padding: var(--header-btn-pad-text, 0.4rem 0.95rem);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--header-font-size, 0.78rem);
+  }
+  .settings-lang-btn:hover { background: var(--header-btn-bg-hover, rgba(139, 148, 158, 0.18)); }
+  .settings-lang-btn.active {
+    background: var(--header-active-bg, #f7931a);
+    color: var(--header-active-fg, #0d1117);
+  }
+
+  .settings-item {
+    background: transparent;
+    border: none;
+    color: var(--header-btn-fg, #c9d1d9);
+    padding: 0.45rem 0.4rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: inherit;
+    font-size: var(--header-font-size, 0.78rem);
+  }
+  .settings-item:hover { background: var(--header-btn-bg-hover, rgba(139, 148, 158, 0.18)); }
+
+  /* === Login mount slot (txid-auth-mount injects a button at runtime) === */
+  .auth-mount :global(button),
+  .auth-mount :global(a) {
+    background: var(--header-login-bg, rgba(247, 147, 26, 0.18));
+    border: 1px solid var(--header-login-border, rgba(247, 147, 26, 0.4));
+    color: var(--header-login-fg, #f7931a);
+    border-radius: var(--header-btn-radius, 999px);
+    padding: var(--header-btn-pad-text, 0.4rem 0.95rem);
+    font-size: var(--header-font-size, 0.78rem);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.15s;
+  }
+  .auth-mount :global(button:hover),
+  .auth-mount :global(a:hover) { background: rgba(247, 147, 26, 0.28); }
+</style>
+
 {!skipWiring && (
   <script>
     // Auto-wires #lang-btn dropdown, .settings-lang-btn hamburger buttons,

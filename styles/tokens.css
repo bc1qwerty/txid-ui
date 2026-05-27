@@ -64,6 +64,48 @@
   --duration-fast:   150ms;
   --duration-base:   200ms;
   --duration-slow:   300ms;
+
+  /* ── Header chrome (pill capsule, BTC orange active) ── */
+  --header-btn-bg:        rgba(139, 148, 158, 0.12);
+  --header-btn-bg-hover:  rgba(139, 148, 158, 0.18);
+  --header-btn-fg:        #c9d1d9;
+  --header-btn-radius:    999px;
+  --header-btn-pad-text:  0.4rem 0.95rem;
+  --header-btn-pad-icon:  0.4rem 0.55rem;
+  --header-active-bg:     var(--color-bitcoin);
+  --header-active-fg:     #0d1117;
+  --header-login-bg:      rgba(247, 147, 26, 0.18);
+  --header-login-border:  rgba(247, 147, 26, 0.4);
+  --header-login-fg:      var(--color-bitcoin);
+  --header-gap:           0.5rem;
+  --header-font-size:     0.78rem;
+
+  /* ── Footer chrome ── */
+  --footer-fg:            #6e7681;
+  --footer-link:          #8b949e;
+  --footer-link-hover:    #c9d1d9;
+  --footer-border:        #21262d;
+  --footer-font-size:     0.75rem;
+  --footer-pad:           0.85rem 1.25rem;
+  --footer-gap:           1rem;
+}
+
+/* Light-mode pair for header/footer chrome — sites that toggle
+   [data-theme='light'] pick these up automatically. */
+[data-theme='light'] {
+  --header-btn-bg:        rgba(13, 17, 23, 0.05);
+  --header-btn-bg-hover:  rgba(13, 17, 23, 0.08);
+  --header-btn-fg:        #1f2328;
+  --header-active-bg:     var(--color-bitcoin);
+  --header-active-fg:     #0d1117;
+  --header-login-bg:      rgba(247, 147, 26, 0.12);
+  --header-login-border:  rgba(247, 147, 26, 0.5);
+  --header-login-fg:      var(--color-bitcoin-on-light);
+
+  --footer-fg:            #6e7681;
+  --footer-link:          #57606a;
+  --footer-link-hover:    #1f2328;
+  --footer-border:        #d1d9e0;
 }
 
 /* Dark mode overrides for shadow + on-light bitcoin (kept as a no-op for

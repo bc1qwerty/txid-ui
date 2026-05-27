@@ -1,12 +1,18 @@
 ---
 interface Props {
   sub: string;
+  /** Fallback when URL path has no /xx/ prefix. Defaults to 'en'. */
+  defaultLang?: 'en' | 'ko' | 'ja';
+  /** Set true on sites with their own routing logic (map/sim/portfolio).
+   *  When true, the lang/theme/hamburger handlers are NOT auto-attached
+   *  and the consuming site must wire them itself. */
+  skipWiring?: boolean;
 }
 
-const { sub } = Astro.props;
+const { sub, defaultLang = 'en', skipWiring = false } = Astro.props;
 ---
 
-<header>
+<header data-default-lang={defaultLang}>
   <div class="nav-top">
     <a href="https://txid.uk" class="logo" target="_blank" rel="noopener">
       <svg width="18" height="18" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon" aria-hidden="true">
@@ -53,3 +59,85 @@ const { sub } = Astro.props;
     </div>
   </div>
 </header>
+
+{!skipWiring && (
+  <script>
+    // Auto-wires #lang-btn dropdown, .settings-lang-btn hamburger buttons,
+    // #hamburger-btn drawer toggle, #theme-btn / #hamburger-theme-btn.
+    // defaultLang prop is read from <header data-default-lang>.
+    // Sites with custom routing (map/sim/portfolio) pass skipWiring={true}.
+    (function () {
+      const headerEl = document.querySelector<HTMLElement>('header[data-default-lang]');
+      const defaultLang = (headerEl?.dataset.defaultLang || 'en') as 'en' | 'ko' | 'ja';
+      const supported = ['en', 'ko', 'ja'] as const;
+      type Lang = typeof supported[number];
+
+      const path = window.location.pathname;
+      const m = path.match(/^\/([a-z]{2})(?:\/|$)/);
+      const currentLang: Lang = (m && (supported as readonly string[]).includes(m[1]))
+        ? (m[1] as Lang)
+        : defaultLang;
+
+      function setLang(target: string | undefined) {
+        if (!target || !(supported as readonly string[]).includes(target) || target === currentLang) return;
+        try { localStorage.setItem('lang', target); } catch { /* ignore */ }
+        window.location.href = '/' + target + '/';
+      }
+
+      const langBtn = document.getElementById('lang-btn');
+      const langMenu = document.getElementById('lang-menu');
+      if (langBtn && langMenu) {
+        langBtn.textContent = currentLang.toUpperCase();
+        langBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const open = langMenu.classList.toggle('open');
+          langBtn.setAttribute('aria-expanded', String(open));
+        });
+        document.addEventListener('click', (e) => {
+          const target = e.target as Node;
+          if (!langMenu.contains(target) && target !== langBtn) {
+            langMenu.classList.remove('open');
+            langBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+        const order: Lang[] = ['en', 'ko', 'ja'];
+        langMenu.querySelectorAll<HTMLButtonElement>('button').forEach((b, i) => {
+          b.addEventListener('click', () => setLang(order[i]));
+        });
+      }
+
+      document.querySelectorAll<HTMLButtonElement>('#hamburger-panel .settings-lang-btn').forEach((btn) => {
+        if (btn.dataset.lang === currentLang) btn.classList.add('active');
+        btn.addEventListener('click', () => setLang(btn.dataset.lang));
+      });
+
+      const hamBtn = document.getElementById('hamburger-btn');
+      const hamPanel = document.getElementById('hamburger-panel');
+      if (hamBtn && hamPanel) {
+        hamBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const open = hamPanel.classList.toggle('open');
+          hamBtn.setAttribute('aria-expanded', String(open));
+        });
+        document.addEventListener('click', (e) => {
+          const target = e.target as Node;
+          if (!hamPanel.contains(target) && target !== hamBtn) {
+            hamPanel.classList.remove('open');
+            hamBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+
+      function setTheme(t: string) {
+        document.documentElement.setAttribute('data-theme', t);
+        try { localStorage.setItem('theme', t); } catch { /* ignore */ }
+      }
+      function toggleTheme() {
+        const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+        setTheme(cur === 'dark' ? 'light' : 'dark');
+      }
+      document.getElementById('theme-btn')?.addEventListener('click', toggleTheme);
+      document.getElementById('hamburger-theme-btn')?.addEventListener('click', toggleTheme);
+    })();
+  </script>
+)}

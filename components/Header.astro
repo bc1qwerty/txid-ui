@@ -263,7 +263,11 @@ const { sub, defaultLang = 'en', skipWiring = false } = Astro.props;
       function setLang(target: string | undefined) {
         if (!target || !(supported as readonly string[]).includes(target) || target === currentLang) return;
         try { localStorage.setItem('lang', target); } catch { /* ignore */ }
-        window.location.href = '/' + target + '/';
+        // Path-preserving: /ko/account/ → /en/account/ (more natural than always-root).
+        // Sites whose target lang doesn't have the same path can 404; for those, opt out
+        // via skipWiring={true} and handle routing themselves.
+        const newPath = window.location.pathname.replace(/^\/(en|ko|ja)(\/|$)/, '/' + target + '$2');
+        window.location.href = newPath !== window.location.pathname ? newPath : '/' + target + '/';
       }
 
       const langBtn = document.getElementById('lang-btn');

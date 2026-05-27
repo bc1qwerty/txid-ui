@@ -60,12 +60,14 @@ const { sub, defaultLang = 'en', skipWiring = false } = Astro.props;
   </div>
 </header>
 
-<style>
+<style is:global>
   /* === Pill Capsule chrome — synced via @txid/ui sync.sh ===
-     Astro auto-scopes these selectors to this component, so consumer
-     sites can keep their own utility classes in global.css without
-     accidental overrides. Login button uses :global() because
-     #txid-auth-mount is populated by an external script after build. */
+     is:global because scoped style caused per-page unique
+     data-astro-cid attributes that ballooned the CSP script-hash
+     count (17→32 on id, pushing _headers toward the 2KB silent-drop
+     threshold). Consumer sites already had their global.css header
+     selectors cleaned in the PR #2 sync, so there is no specificity
+     conflict to worry about. */
   header[data-default-lang] {
     font-family: var(--font-sans-ko, 'Pretendard Variable', Pretendard, Inter, system-ui, sans-serif);
   }
@@ -219,8 +221,8 @@ const { sub, defaultLang = 'en', skipWiring = false } = Astro.props;
   .settings-item:hover { background: var(--header-btn-bg-hover, rgba(139, 148, 158, 0.18)); }
 
   /* === Login mount slot (txid-auth-mount injects a button at runtime) === */
-  .auth-mount :global(button),
-  .auth-mount :global(a) {
+  .auth-mount button,
+  .auth-mount a {
     background: var(--header-login-bg, rgba(247, 147, 26, 0.18));
     border: 1px solid var(--header-login-border, rgba(247, 147, 26, 0.4));
     color: var(--header-login-fg, #f7931a);
@@ -236,8 +238,8 @@ const { sub, defaultLang = 'en', skipWiring = false } = Astro.props;
     gap: 0.35rem;
     transition: background 0.15s;
   }
-  .auth-mount :global(button:hover),
-  .auth-mount :global(a:hover) { background: rgba(247, 147, 26, 0.28); }
+  .auth-mount button:hover,
+  .auth-mount a:hover { background: rgba(247, 147, 26, 0.28); }
 </style>
 
 {!skipWiring && (

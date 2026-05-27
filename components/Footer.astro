@@ -44,11 +44,11 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer {
-    font-family: var(--font-sans, 'Pretendard Variable', Pretendard, Inter, system-ui, -apple-system, 'Segoe UI', sans-serif);
-    border-top: 1px solid var(--border, #21262d);
+    font-family: var(--font-sans-ko, 'Pretendard Variable', Pretendard, Inter, system-ui, -apple-system, 'Segoe UI', sans-serif);
+    border-top: 1px solid var(--footer-border, #21262d);
     margin-top: 40px;
     padding: 24px 16px 32px;
-    color: var(--text2, #8b949e);
+    color: var(--footer-fg, #8b949e);
   }
 
   .footer-inner {
@@ -70,11 +70,11 @@ const year = new Date().getFullYear();
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-size: .75rem;
+    font-size: var(--footer-font-size, .75rem);
     padding: 5px 10px;
-    border: 1px solid var(--border, #21262d);
+    border: 1px solid var(--footer-border, #21262d);
     border-radius: 6px;
-    color: var(--text2, #8b949e);
+    color: var(--footer-link, #8b949e);
     text-decoration: none;
     transition: color .2s, border-color .2s;
   }
@@ -99,7 +99,7 @@ const year = new Date().getFullYear();
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
-    font-size: .75rem;
+    font-size: var(--footer-font-size, .75rem);
   }
 
   .footer-copy a {
@@ -118,13 +118,13 @@ const year = new Date().getFullYear();
   }
 
   .footer-links a {
-    color: var(--text2, #8b949e);
+    color: var(--footer-link, #8b949e);
     text-decoration: none;
     transition: color .2s;
   }
 
   .footer-links a:hover {
-    color: var(--accent, #f7931a);
+    color: var(--footer-link-hover, #c9d1d9);
   }
 
   .footer-sep {
